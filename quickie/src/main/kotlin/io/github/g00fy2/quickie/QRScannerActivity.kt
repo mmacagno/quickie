@@ -6,7 +6,6 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Size
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
@@ -14,10 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -82,50 +79,45 @@ internal class QRScannerActivity : AppCompatActivity() {
   }
 
   private fun startCamera() {
-    val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
-    cameraProviderFuture.addListener({
-      val cameraProvider = cameraProviderFuture.get()
-
-      val preview = Preview.Builder().build().also { it.setSurfaceProvider(binding.previewView.surfaceProvider) }
-      val imageAnalysis = ImageAnalysis.Builder()
-        .setTargetResolution(Size(1280, 720))
-        .build()
-        .also {
-          it.setAnalyzer(
-            analysisExecutor,
-            QRCodeAnalyzer(
-              barcodeFormats = barcodeFormats,
-              onSuccess = { barcode ->
-                it.clearAnalyzer()
-                onSuccess(barcode)
-              },
-              onFailure = { exception -> onFailure(exception) },
-              onPassCompleted = { failureOccurred -> onPassCompleted(failureOccurred) }
-            )
-          )
-        }
-
-      cameraProvider.unbindAll()
-      try {
-        val cameraSelector = if (useFrontCamera) {
-          CameraSelector.DEFAULT_FRONT_CAMERA
-        } else {
-          CameraSelector.DEFAULT_BACK_CAMERA
-        }
-        val camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis)
-        binding.overlayView.visibility = View.VISIBLE
-        if (showTorchToggle && camera.cameraInfo.hasFlashUnit()) {
-          binding.overlayView.setTorchVisibilityAndOnClick(true) { camera.cameraControl.enableTorch(it) }
-          camera.cameraInfo.torchState.observe(this) { binding.overlayView.setTorchState(it == TorchState.ON) }
-        } else {
-          binding.overlayView.setTorchVisibilityAndOnClick(false)
-        }
-      } catch (e: Exception) {
-        binding.overlayView.visibility = View.INVISIBLE
-        onFailure(e)
+    val cameraController = LifecycleCameraController(this)
+    cameraController.unbind()
+    try {
+      cameraController.bindToLifecycle(this)
+      cameraController.cameraSelector = if (useFrontCamera) {
+        CameraSelector.DEFAULT_FRONT_CAMERA
+      } else {
+        CameraSelector.DEFAULT_BACK_CAMERA
       }
-    }, ContextCompat.getMainExecutor(this))
+
+      binding.previewView.controller = cameraController
+      binding.overlayView.visibility = View.VISIBLE
+
+      val imageAnalyzer = BarcodeAnalyzer(
+        barcodeFormats = barcodeFormats,
+        onSuccess = { barcode ->
+          cameraController.clearImageAnalysisAnalyzer()
+          onSuccess(barcode)
+        },
+        onFailure = { exception -> onFailure(exception) },
+        onPassCompleted = { failureOccurred -> onPassCompleted(failureOccurred) }
+      )
+
+      cameraController.setImageAnalysisAnalyzer(analysisExecutor, imageAnalyzer)
+
+      if (showTorchToggle && cameraController.cameraInfo?.hasFlashUnit() == true) {
+        binding.overlayView.setTorchVisibilityAndOnClick(true) {
+          cameraController.cameraControl?.enableTorch(it)
+        }
+        cameraController.cameraInfo?.torchState?.observe(this) {
+          binding.overlayView.setTorchState(it == TorchState.ON)
+        }
+      } else {
+        binding.overlayView.setTorchVisibilityAndOnClick(false)
+      }
+    } catch (e: Exception) {
+      binding.overlayView.visibility = View.INVISIBLE
+      onFailure(e)
+    }
   }
 
   private fun onSuccess(result: Barcode) {

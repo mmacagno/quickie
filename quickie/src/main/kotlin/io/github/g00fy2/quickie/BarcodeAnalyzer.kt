@@ -1,5 +1,7 @@
 package io.github.g00fy2.quickie
 
+import android.util.Size
+import androidx.camera.core.ExperimentalAnalyzer
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -8,7 +10,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
-internal class QRCodeAnalyzer(
+internal class BarcodeAnalyzer(
   private val barcodeFormats: IntArray,
   private val onSuccess: ((Barcode) -> Unit),
   private val onFailure: ((Exception) -> Unit),
@@ -51,6 +53,9 @@ internal class QRCodeAnalyzer(
         imageProxy.close()
       }
   }
+
+  @ExperimentalAnalyzer
+  override fun getTargetResolutionOverride(): Size = Size(1280, 720)
 
   @ExperimentalGetImage
   @Suppress("UnsafeCallOnNullableType")

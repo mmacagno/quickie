@@ -11,6 +11,9 @@ android {
     versionName = "1.0"
   }
   buildTypes {
+    getByName("debug") {
+      applicationIdSuffix = ".debug"
+    }
     getByName("release") {
       isShrinkResources = true
       isMinifyEnabled = true
