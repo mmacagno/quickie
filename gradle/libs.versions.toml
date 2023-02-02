@@ -1,35 +1,34 @@
 [versions]
-quickie = "1.4.1"
+quickie = "1.6.0"
 
 androidconfig-minSdk = "21"
-androidconfig-compileSdk = "31"
-androidconfig-targetSdk = "31"
-androidconfig-buildTools = "31.0.0"
+androidconfig-compileSdk = "33"
+androidconfig-targetSdk = "33"
+androidconfig-buildTools = "33.0.1"
 
-androidGradle = "7.1.2"
-kotlin = "1.6.20"
+androidGradle = "7.3.1"
+kotlin = "1.7.21"
 
-appcompat = "1.4.1"
+appcompat = "1.5.1"
 
-cameraX = "1.0.2"
-cameraView = "1.0.0-alpha32"
+cameraX = "1.2.0"
 
-barcodeScanning = "17.0.2"
-barcodeScanningGms = "18.0.0"
+barcodeScanning = "17.0.3"
+barcodeScanningGms = "18.1.0"
 
-materialDesign = "1.5.0"
+materialDesign = "1.7.0"
 
-detekt = "1.19.0"
-gradleVersions = "0.42.0"
-dokka = "1.6.10"
+detekt = "1.22.0"
+gradleVersions = "0.44.0"
+dokka = "1.7.20"
 
-junit = "5.8.2"
+junit = "5.9.1"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-camera = { module = "androidx.camera:camera-camera2", version.ref = "cameraX" }
 androidx-cameraLifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraX" }
-androidx-cameraPreview = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
+androidx-cameraPreview = { module = "androidx.camera:camera-view", version.ref = "cameraX" }
 
 mlkit-barcodeScanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
 mlkit-barcodeScanningGms = { module = "com.google.android.gms:play-services-mlkit-barcode-scanning", version.ref = "barcodeScanningGms" }
@@ -45,9 +44,8 @@ misc-detektFormatting = { module = "io.gitlab.arturbosch.detekt:detekt-formattin
 android-application = { id = "com.android.application", version.ref = "androidGradle" }
 android-library = { id = "com.android.library", version.ref = "androidGradle" }
 
-kotlin-androidGradle = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-android = { id = "kotlin-android", version.ref = "kotlin" }
-kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 
 misc-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

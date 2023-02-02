@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.github.g00fy2.quickie.extensions
 
 import android.content.Intent
@@ -32,7 +34,7 @@ import io.github.g00fy2.quickie.content.UrlBookmarkParcelable
 import io.github.g00fy2.quickie.content.WifiParcelable
 
 internal fun Intent?.toQuickieContentType(): QRContent {
-  val rawValue = this?.getStringExtra(QRScannerActivity.EXTRA_RESULT_VALUE) ?: ""
+  val rawValue = this?.getStringExtra(QRScannerActivity.EXTRA_RESULT_VALUE).orEmpty()
   return this?.toQuickieContentType(rawValue) ?: Plain(rawValue)
 }
 

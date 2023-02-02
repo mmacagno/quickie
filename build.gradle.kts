@@ -1,4 +1,5 @@
 import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.BasePlugin
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -6,7 +7,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   alias(libs.plugins.android.application) apply false
-  alias(libs.plugins.kotlin.androidGradle) apply false
+  alias(libs.plugins.android.library) apply false
+  alias(libs.plugins.kotlin.android) apply false
+  alias(libs.plugins.kotlin.parcelize) apply false
+  alias(libs.plugins.kotlin.dokka) apply false
   alias(libs.plugins.misc.detekt) apply false
   alias(libs.plugins.misc.gradleVersions)
 }
@@ -23,19 +27,19 @@ subprojects {
     add("detektPlugins", rootProject.libs.misc.detektFormatting)
   }
   tasks.withType<Detekt>().configureEach {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
   }
   tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
       allWarningsAsErrors = true
       freeCompilerArgs = freeCompilerArgs + listOfNotNull(
         "-progressive",
-        if (this@subprojects.name != "sample") "-Xexplicit-api=strict" else null,
+        "-Xexplicit-api=strict".takeIf { (this@subprojects.name != "sample") },
       )
-      jvmTarget = "1.8"
+      jvmTarget = JavaVersion.VERSION_11.toString()
     }
   }
-  afterEvaluate {
+  plugins.withType<BasePlugin>().configureEach {
     extensions.configure<BaseExtension> {
       compileSdkVersion(libs.versions.androidconfig.compileSdk.get().toInt())
       buildToolsVersion(libs.versions.androidconfig.buildTools.get())
@@ -44,8 +48,8 @@ subprojects {
         targetSdk = libs.versions.androidconfig.targetSdk.get().toInt()
       }
       compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
       }
     }
   }
